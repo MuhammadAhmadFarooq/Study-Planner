@@ -1,72 +1,70 @@
-# Assignment 2 — Study Planner
+# Quiz 4 — Firebase SMS OTP Verification
 
-A small Expo / React Native app using plain JavaScript. It uses a **Native Stack Navigator + Bottom Tab Navigator** (two navigator types, as allowed by the assignment). No login, database, API keys, or backend needed.
+A React Native / Expo application that verifies a phone number with a Firebase SMS one-time password (OTP). The app uses Firebase Authentication through React Native Firebase.
 
-## Run locally
+## What the app demonstrates
 
-Use Node.js 22.13+ (or a newer supported LTS release).
+1. Enter a phone number in international format, for example `+923001234567`.
+2. Request an SMS OTP using Firebase Authentication.
+3. Enter the received six-digit code.
+4. Display a clear success message when verification succeeds, or a helpful failure message for an invalid or expired code.
+
+## Important: this needs a development build
+
+Phone authentication needs native Firebase code. It **does not work in Expo Go or in the web browser**. Use an Android development build on a real phone. The app is configured for Android package name:
+
+`com.muhammadahmadfarooq.firebaseotpquiz`
+
+## Firebase setup (do this once)
+
+1. Open [Firebase Console](https://console.firebase.google.com/) and sign in with your Google account.
+2. Select **Create a project**, name it `Firebase OTP Quiz`, and finish the free setup. Google Analytics is optional for this quiz.
+3. In the project overview, click the **Android** icon to add an Android app.
+4. Enter this exact Android package name: `com.muhammadahmadfarooq.firebaseotpquiz`.
+5. Download **google-services.json** and put it at the project root beside `app.json`.
+6. Go to **Build → Authentication → Get started → Sign-in method**, open **Phone**, enable it, and save.
+7. Go to **Authentication → Settings → SMS region policy** and allow Pakistan (or the country of the number you will use). New Firebase projects block all regions until you set a policy.
+8. For a no-cost class demonstration, open **Authentication → Sign-in method → Phone → Phone numbers for testing**. Add a test number in international format and choose a six-digit code. Firebase will accept that code without sending an SMS.
+
+The Firebase config file is ignored by Git. Do not commit it. Never add a Firebase service-account key to this app.
+
+## Install and run on Android
 
 ```sh
 npm install
-npm start
+npx expo prebuild --clean
+npx expo run:android
 ```
 
-- **Phone:** Install Expo Go, connect your phone and computer to the same Wi-Fi, and scan the terminal QR code. Use an Expo Go version compatible with the Expo SDK listed in package.json.
-- **Browser:** Run `npm run web` (or press `w` in the Expo terminal).
-- **Android emulator:** Start an emulator from Android Studio, then run `npm run android` (or press `a`).
-- **iOS simulator:** Requires macOS. A physical iPhone can use Expo Go.
-- If your phone cannot connect over Wi-Fi, try `npx expo start --tunnel` (requires internet and may offer to install Expo's tunnel helper).
-- To clear the bundler cache, run `npx expo start --clear`.
+The last command installs a development build on an Android phone or emulator. After the first build, use:
 
-Dependencies are already installed in this working folder. `npm ci` can reproduce the exact package versions from package-lock.json after copying the source to another computer.
-
-## Folder structure
-
-```text
-App.js                          Navigation container and status bar
-index.js                        Expo entry point
-src/
-  navigation/AppNavigator.js    Stack and tab navigators, header options
-  screens/
-    CoursesScreen.js            Course list and navigation with parameters
-    CourseDetailsScreen.js      Received course information
-    ProfileScreen.js            Student profile tab
-    TipsScreen.js               Study tips opened by the header button
-  data/courses.js               Local sample course data
-  styles/styles.js             Shared colors and styles
+```sh
+npx expo start --dev-client
 ```
 
-## How navigation works
+Then open the installed **Firebase OTP Quiz** development build and connect it to Metro.
 
-```text
-NavigationContainer
-└── Stack
-    ├── Home (header: Study Planner; header button: Study tips)
-    │   └── Bottom Tabs
-    │       ├── Courses
-    │       └── Profile
-    ├── CourseDetails (header: selected course code)
-    └── Tips (header: Study Tips)
-```
+If you edit `app.json`, add Firebase packages, or replace `google-services.json`, run `npx expo prebuild --clean` and `npx expo run:android` again.
 
-The tabs switch between Courses and Profile. Opening details pushes a screen onto the parent stack; going back returns to the tabs. The tab bar is intentionally only visible on Home.
+## How the implementation works
 
-## Assignment requirements / evaluation demo
+- `App.js` holds the two-step phone and OTP interface.
+- `signInWithPhoneNumber(getAuth(), phoneNumber)` asks Firebase to send the verification SMS and returns a confirmation object.
+- `confirmation.confirm(code)` checks the OTP entered by the user.
+- `onAuthStateChanged` shows the verified phone number after Firebase signs the user in.
+- `app.json` registers both Firebase plugins and points Expo at the Android/iOS Firebase config files.
 
-| Requirement | Implementation | How to demonstrate |
-| --- | --- | --- |
-| Pass route parameters | CoursesScreen calls `navigation.navigate('CourseDetails', { course })` | Tap any course card. |
-| Display received parameters | CourseDetailsScreen reads `route.params.course` | Show its title, code, instructor, room, schedule, and task. Open another course to show different values. |
-| Customize headers | AppNavigator sets header colors, screen titles, and the detail title from the selected course code | Compare the Home, Details, and Tips headers. |
-| Meaningful header button | Home's `headerRight` opens the Tips screen | Tap **Study tips**, then use the header back button. |
-| Combine navigators | A native stack contains a bottom tab navigator | Switch Courses/Profile, then open a course's details. |
+## Demo flow for evaluation
 
-`navigation` provides actions such as `navigate()` and `goBack()`. `route` contains the current screen's information, including the parameters passed by the previous screen. The course object contains only strings, so it is serializable. There is no editing or persistent storage in this small demo.
+1. Open the app and show the phone-number field.
+2. Enter the Firebase test number, then tap **Send OTP**.
+3. Show the OTP field and the “OTP was sent” message.
+4. Enter the matching test code and tap **Verify OTP**.
+5. Show the green `Phone number verified` success message.
+6. Tap **Use a different phone number**, request another OTP, and enter a wrong code to demonstrate failure handling.
 
-## Personalize / submit
+## References
 
-- Update the sample courses in `src/data/courses.js` if desired.
-- Update the student text in `src/screens/ProfileScreen.js` with your own details.
-- Submit the source, assets, package.json, package-lock.json, app.json, and this README according to the class instructions. Exclude `node_modules`, `.expo`, and generated `dist` files.
-
-Reference: [React Navigation documentation](https://reactnavigation.org/docs/getting-started/).
+- [Firebase Phone Authentication](https://firebase.google.com/docs/auth/web/phone-auth)
+- [React Native Firebase Phone Authentication](https://rnfirebase.io/auth/phone-auth)
+- [Expo development builds](https://docs.expo.dev/develop/development-builds/introduction/)

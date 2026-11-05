@@ -1,15 +1,19 @@
 {
   "expo": {
-    "name": "Study Planner",
-    "slug": "study-planner-a2",
+    "name": "Firebase OTP Quiz",
+    "slug": "firebase-otp-quiz",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.muhammadahmadfarooq.firebaseotpquiz",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
+      "package": "com.muhammadahmadfarooq.firebaseotpquiz",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -19,6 +23,10 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth"
+    ]
   }
 }
